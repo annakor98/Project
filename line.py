@@ -23,9 +23,9 @@ class Line(GameObject):
     def draw(self, surface):
         if self.mode == 0:
             if self.orient == 'hor':
-                pygame.draw.line(surface, (200, 200, 200), (self.x, self.y), (self.x+self.l, self.y))
+                pygame.draw.line(surface, (200, 200, 200), (self.x, self.y), (self.x + self.l, self.y))
             elif self.orient == 'vert':
-                pygame.draw.line(surface, (200, 200, 200), (self.x, self.y), (self.x, self.y+self.l))
+                pygame.draw.line(surface, (200, 200, 200), (self.x, self.y), (self.x, self.y + self.l))
 
         if self.mode == 2:
 
@@ -56,22 +56,22 @@ class Line(GameObject):
         if self.mode == 4:
 
             if self.orient == 'hor':
-                pygame.draw.line(surface, (self.col), (self.x, self.y), (self.x + (self.l // 3), self.y))
-                pygame.draw.line(surface, (self.col), (self.x + (2 * self.l // 3), self.y), (self.x + self.l, self.y))
-                pygame.draw.circle(surface, (self.col), (self.x + (7*self.l//18), self.y), self.l//16, 1)
-                pygame.draw.circle(surface, (self.col), (self.x + (9 * self.l // 18), self.y), self.l // 16, 1)
-                pygame.draw.circle(surface, (self.col), (self.x + (11 * self.l // 18), self.y), self.l // 16, 1)
+                pygame.draw.line(surface, self.col, (self.x, self.y), (self.x + (self.l // 3), self.y))
+                pygame.draw.line(surface, self.col, (self.x + (2 * self.l // 3), self.y), (self.x + self.l, self.y))
+                pygame.draw.circle(surface, self.col, (self.x + (7 * self.l // 18), self.y), self.l // 16, 1)
+                pygame.draw.circle(surface, self.col, (self.x + (9 * self.l // 18), self.y), self.l // 16, 1)
+                pygame.draw.circle(surface, self.col, (self.x + (11 * self.l // 18), self.y), self.l // 16, 1)
                 pygame.draw.polygon(surface, (255, 255, 255),
                                     [(self.x + (self.l // 3), self.y), (self.x + (2 * self.l // 3), self.y),
                                      (self.x + (2 * self.l // 3), self.y + 10), (self.x + (self.l // 3), self.y + 10),
                                      (self.x + (self.l // 3), self.y)], 0)
 
             elif self.orient == 'vert':
-                pygame.draw.line(surface, (self.col), (self.x, self.y), (self.x, self.y + (self.l // 3)))
-                pygame.draw.line(surface, (self.col), (self.x, self.y + (2 * self.l // 3)), (self.x, self.y + self.l))
-                pygame.draw.circle(surface, (self.col), (self.x, self.y + (7*self.l // 18)), self.l //16, 1)
-                pygame.draw.circle(surface, (self.col), (self.x, self.y + (9 * self.l // 18)), self.l // 16, 1)
-                pygame.draw.circle(surface, (self.col), (self.x, self.y + (11 * self.l // 18)), self.l // 16, 1)
+                pygame.draw.line(surface, self.col, (self.x, self.y), (self.x, self.y + (self.l // 3)))
+                pygame.draw.line(surface, self.col, (self.x, self.y + (2 * self.l // 3)), (self.x, self.y + self.l))
+                pygame.draw.circle(surface, self.col, (self.x, self.y + (7 * self.l // 18)), self.l // 16, 1)
+                pygame.draw.circle(surface, self.col, (self.x, self.y + (9 * self.l // 18)), self.l // 16, 1)
+                pygame.draw.circle(surface, self.col, (self.x, self.y + (11 * self.l // 18)), self.l // 16, 1)
                 pygame.draw.polygon(surface, (255, 255, 255),
                                     [(self.x, self.y + (self.l // 3)), (self.x, self.y + (2 * self.l // 3)),
                                      (self.x + 10, self.y + (2 * self.l // 3)), (self.x + 10, self.y + (self.l // 3)),
@@ -99,7 +99,7 @@ class Line(GameObject):
         if pygame.mouse.get_pressed()[0]:
             pos = pygame.mouse.get_pos()
             if self.bounds.collidepoint(pos):
-                self.mode = (self.mode + 1)%5
+                self.mode = (self.mode + 1) % 5
                 if self.mode == 1:
                     self.mode += 1
                 self.value = 1
@@ -110,12 +110,15 @@ class Line(GameObject):
         if pygame.mouse.get_pressed()[2]:
             pos = pygame.mouse.get_pos()
             if self.bounds.collidepoint(pos) and self.mode > 1:
-                if (self.mode == 2):
-                    txtbx = InputBox(self.x + 30, self.y + 30, pygame.font.SysFont("Arial", 20), 6, str(self.value), 'Resistance', 'mOm')
-                if (self.mode == 4):
-                    txtbx = InputBox(self.x + 30, self.y + 30, pygame.font.SysFont("Arial", 20), 6, str(self.value), 'Inductance', 'H')
-                if (self.mode == 3):
-                    txtbx = InputBox(self.x + 30, self.y + 30, pygame.font.SysFont("Arial", 20), 6, str(self.value), 'Capacity', 'F')
+                if self.mode == 2:
+                    txtbx = InputBox(self.x + 30, self.y + 30, pygame.font.SysFont("Arial", 20), 6, str(self.value),
+                                     'Resistance', 'mOm')
+                if self.mode == 4:
+                    txtbx = InputBox(self.x + 30, self.y + 30, pygame.font.SysFont("Arial", 20), 6, str(self.value),
+                                     'Inductance', 'H')
+                if self.mode == 3:
+                    txtbx = InputBox(self.x + 30, self.y + 30, pygame.font.SysFont("Arial", 20), 6, str(self.value),
+                                     'Capacity', 'F')
                 while 1:
                     events = pygame.event.get()
 
@@ -127,8 +130,3 @@ class Line(GameObject):
                         break
                     txtbx.draw(surface)
                     pygame.display.flip()
-
-
-
-
-

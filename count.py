@@ -2,13 +2,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pygame
 
+
 def color(grid):
     color = (0, 0, 255)
     ans = True
     count_capacitors = 0
     count_inductors = 0
 
-    for i in range (len(grid)):
+    for i in range(len(grid)):
         if grid[i].mode == 3:
             count_capacitors += 1
         if grid[i].mode == 4:
@@ -20,13 +21,13 @@ def color(grid):
     for i in range(7):
         for j in range(5):
             s = 0
-            if i < 6 and grid[(j*6) + i].mode > 0:
+            if i < 6 and grid[(j * 6) + i].mode > 0:
                 s += 1
-            if i > 0 and grid[(j*6) + i - 1].mode > 0:
+            if i > 0 and grid[(j * 6) + i - 1].mode > 0:
                 s += 1
-            if j < 4 and grid[30 + (j*7) + i].mode > 0:
+            if j < 4 and grid[30 + (j * 7) + i].mode > 0:
                 s += 1
-            if j > 0 and grid[23 + (j*7) + i].mode > 0:
+            if j > 0 and grid[23 + (j * 7) + i].mode > 0:
                 s += 1
 
             if s == 1:
@@ -37,6 +38,7 @@ def color(grid):
 
     return color
 
+
 def count(grid, surface):
     nodes = []
     n = 0
@@ -45,24 +47,25 @@ def count(grid, surface):
     elements = []
 
     colors = ['blue', 'green', 'red', 'cyan', 'magenta', 'yellow']
+    colors_inductors = [(0, 0, 255), (0, 255, 0), (255, 0, 0), (0, 255, 255), (255, 0, 255), (255, 255, 0)]
 
     for i in range(7):
         for j in range(5):
             s = 0
             c = 0
-            if i < 6 and grid[(j*6) + i].mode > 0:
+            if i < 6 and grid[(j * 6) + i].mode > 0:
                 s += 1
-                if grid[(j*6) + i].mode > 1:
+                if grid[(j * 6) + i].mode > 1:
                     c += 1
-            if i > 0 and grid[(j*6) + i - 1].mode > 0:
+            if i > 0 and grid[(j * 6) + i - 1].mode > 0:
                 s += 1
-                if grid[(j*6) + i - 1].mode > 1:
+                if grid[(j * 6) + i - 1].mode > 1:
                     c += 1
-            if j < 4 and grid[30 + (j*7) + i].mode > 0:
+            if j < 4 and grid[30 + (j * 7) + i].mode > 0:
                 s += 1
                 if grid[30 + (j * 7) + i].mode > 1:
                     c += 1
-            if j > 0 and grid[23 + (j*7) + i].mode > 0:
+            if j > 0 and grid[23 + (j * 7) + i].mode > 0:
                 s += 1
                 if grid[23 + (j * 7) + i].mode > 1:
                     c += 1
@@ -77,7 +80,7 @@ def count(grid, surface):
     for i in range(len(grid)):
         if grid[i].mode > 3:
             outputs.append(i)
-            grid[i].col = colors[m]
+            grid[i].col = colors_inductors[m % 6]
             grid[i].draw(surface)
             m += 1
         if grid[i].mode > 1:
@@ -85,20 +88,20 @@ def count(grid, surface):
 
     pygame.display.flip()
 
-    matrix = [[0]*(m+n) for _ in range(m+n)]
-    RHS = [0]*(m+n)
+    matrix = [[0] * (m + n) for _ in range(m + n)]
+    rhs = [0] * (m + n)
     h = 0.1
     current = [np.zeros(500) for _ in range(m)]
     for time in range(500):
-        for i in range(n+m):
-            RHS[i] = 0
-            for j in range(n+m):
+        for i in range(n + m):
+            rhs[i] = 0
+            for j in range(n + m):
                 matrix[i][j] = 0
         for i in elements:
             t = grid[i]
             begin = -1
             end = -1
-            if [(t.x//100)-1, (t.y//100)-1] in nodes:
+            if [(t.x // 100) - 1, (t.y // 100) - 1] in nodes:
                 begin = nodes.index([(t.x // 100) - 1, (t.y // 100) - 1])
             if t.orient == 'hor':
                 if [t.x // 100, (t.y // 100 - 1)] in nodes:
@@ -109,42 +112,42 @@ def count(grid, surface):
 
             if t.mode == 2:
                 if begin != -1:
-                    matrix[begin][begin] += 1000/t.value
+                    matrix[begin][begin] += 1000 / t.value
                 if end != -1:
-                    matrix[end][end] += 1000/t.value
+                    matrix[end][end] += 1000 / t.value
                 if begin != -1 and end != -1:
-                    matrix[begin][end] += -1000/t.value
-                    matrix[end][begin] += -1000/t.value
+                    matrix[begin][end] += -1000 / t.value
+                    matrix[end][begin] += -1000 / t.value
 
             elif t.mode == 3:
                 if begin != -1:
-                    matrix[begin][begin] += t.value/h
-                    RHS[begin] += t.value * t.prev / h
+                    matrix[begin][begin] += t.value / h
+                    rhs[begin] += t.value * t.prev / h
                 if end != -1:
-                    matrix[end][end] += t.value/h
-                    RHS[end] += -t.value * t.prev / h
+                    matrix[end][end] += t.value / h
+                    rhs[end] += -t.value * t.prev / h
                 if begin != -1 and end != -1:
-                    matrix[begin][end] += -t.value/h
-                    matrix[end][begin] += -t.value/h
+                    matrix[begin][end] += -t.value / h
+                    matrix[end][begin] += -t.value / h
 
             elif t.mode == 4:
                 ind = outputs.index(i)
                 if begin != -1:
-                    matrix[n+ind][begin] += 1
+                    matrix[n + ind][begin] += 1
                     matrix[begin][n + ind] += 1
                 if end != -1:
-                    matrix[n+ind][end] += -1
-                    matrix[end][n+ind] += -1
-                matrix[n+ind][n+ind] += -t.value/h
-                RHS[n+ind] += -t.value * t.prev/h
+                    matrix[n + ind][end] += -1
+                    matrix[end][n + ind] += -1
+                matrix[n + ind][n + ind] += -t.value / h
+                rhs[n + ind] += -t.value * t.prev / h
 
-        solution = np.linalg.solve(np.array(matrix), np.array(RHS))
+        solution = np.linalg.solve(np.array(matrix), np.array(rhs))
         for i in elements:
             t = grid[i]
             if t.mode == 3:
                 u_begin = 0
                 u_end = 0
-                if [(t.x//100)-1, (t.y//100)-1] in nodes:
+                if [(t.x // 100) - 1, (t.y // 100) - 1] in nodes:
                     begin = nodes.index([(t.x // 100) - 1, (t.y // 100) - 1])
                     u_begin = solution[begin]
                 if t.orient == 'hor':
@@ -160,7 +163,7 @@ def count(grid, surface):
 
             if t.mode == 4:
                 ind = outputs.index(i)
-                t.prev = solution[n+ind]
+                t.prev = solution[n + ind]
 
         for i in range(m):
             current[i][time] = grid[outputs[i]].prev
@@ -168,10 +171,9 @@ def count(grid, surface):
     x = np.linspace(0, 50, 500)
     plt.figure()
     for i in range(m):
-        plt.plot(x, current[i], color=grid[outputs[i]].col)
+        plt.plot(x, current[i], color=colors[i % 6])
 
     plt.xlabel(r'$Time, sec$')
     plt.ylabel(r'$Amperage, A$')
 
     plt.show()
-
